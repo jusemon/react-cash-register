@@ -48,12 +48,12 @@ export default function ProductForm() {
 
   const updateProduct = React.useCallback(async () => {
     try {
-      await axios.put(`${API}/Product/${id}`, productForm);
+      await axios.put(`${API}/Product/${productForm.productId}`, productForm);
       navigate('../products', { replace: true });
     } catch (e) {
       console.error(e);
     }
-  }, [productForm]);
+  }, [productForm, navigate]);
 
   const onSaveClick = () => {
     if (id) {
