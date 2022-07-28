@@ -1,0 +1,275 @@
+import * as React from 'react';
+import axios from 'axios';
+import Select from 'react-select';
+import { useParams, useNavigate } from 'react-router-dom';
+import { API } from '../config/constants';
+import { Product } from './ProductList';
+import { currency } from '../utils/format';
+
+export interface ProductSaleFormFields {
+  productId: number;
+  quantity: number;
+  productSaleId?: number;
+  saleId?: number;
+  price?: number;
+  product?: Product;
+}
+
+export interface SaleFormFields {
+  isLoan: boolean;
+  apartmentNumber: string;
+  payment: number;
+  productSales: ReadonlyArray<ProductSaleFormFields>;
+  return: number;
+  saleId?: number;
+  date?: string;
+  total?: number;
+}
+
+export interface Option extends Product {
+  label: string;
+  value: number;
+  isDisabled: boolean;
+}
+
+export interface SaleFormProp {}
+
+export default function SaleForm({}: SaleFormProp) {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [products, setProducts] = React.useState<ReadonlyArray<Option>>([]);
+  const [saleForm, setSaleForm] = React.useState<SaleFormFields>({
+    isLoan: false,
+    apartmentNumber: '',
+    payment: 0,
+    return: 0,
+    productSales: [{ productId: 0, quantity: 0 }],
+  });
+  const getProducts = React.useCallback(async () => {
+    try {
+      const response = await axios.get<ReadonlyArray<Product>>(
+        `${API}/Product`
+      );
+      setProducts([
+        ...response.data.map((product) => ({
+          ...product,
+          label: product.name,
+          value: product.productId,
+          isDisabled: !product.isActive,
+        })),
+      ]);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [setProducts]);
+
+  const getSale = React.useCallback(async () => {
+    try {
+      if (id) {
+        const response = await axios.get(`${API}/Sale/${id}`);
+        setSaleForm({ ...response.data });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }, [id, setSaleForm]);
+
+  const setProductSale =
+    (index: number) => (productSale: Partial<ProductSaleFormFields>) => {
+      const productSales = [...saleForm.productSales];
+      productSales[index] = {
+        ...productSales[index],
+        ...productSale,
+      };
+      const total = productSales.reduce(
+        (sum, ps) => sum + (ps.price || 0) * ps.quantity,
+        0
+      );
+      setSaleForm({ ...saleForm, total, productSales });
+    };
+
+  React.useEffect(() => {
+    getProducts();
+  }, [getProducts]);
+
+  React.useEffect(() => {
+    getSale();
+  }, [getSale]);
+
+  const createSale = React.useCallback(async () => {
+    try {
+      await axios.post(`${API}/Sale`, saleForm);
+      navigate('../sales', { replace: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [saleForm]);
+
+  const updateSale = React.useCallback(async () => {
+    try {
+      await axios.put(`${API}/Sale/${id}`, saleForm);
+      navigate('../sales', { replace: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [saleForm]);
+
+  const onSaveClick = () => {
+    if (id) {
+      updateSale();
+    } else {
+      createSale();
+    }
+  };
+
+  return (
+    <div className="sale-form">
+      <div className="sale-form-header">
+        <h2>{id ? `Edit Sale ${id}` : 'Register Sale'}</h2>
+      </div>
+      <div className="sale-form-main">
+        {saleForm.saleId && (
+          <div className="form-field">
+            <label>Sale Number</label>
+            <input readOnly value={saleForm?.saleId} type="number" />
+          </div>
+        )}
+        <div className="form-group">
+          <div className="form-group-header">
+            <div className="form-title">Products</div>
+            <button
+              className="btn-tiny"
+              onClick={() =>
+                setSaleForm({
+                  ...saleForm,
+                  productSales: [
+                    ...saleForm.productSales,
+                    { productId: 0, quantity: 0 },
+                  ],
+                })
+              }
+            >
+              +
+            </button>
+          </div>
+          <div className="form-group-body">
+            {saleForm.productSales.map((productSale, index) => (
+              <div key={index} className="form-field">
+                <Select
+                  className="select"
+                  options={products}
+                  value={products.find(
+                    (p) => p.productId == productSale?.productId
+                  )}
+                  onChange={(selected) =>
+                    setProductSale(index)({
+                      productId: selected?.productId,
+                      price: selected?.salePrice,
+                      quantity: 0,
+                    })
+                  }
+                />
+                <input
+                  readOnly
+                  className="medium"
+                  value={currency(productSale?.price || 0)}
+                />
+                <input
+                  className="tiny"
+                  value={productSale?.quantity}
+                  min={1}
+                  onChange={(e) =>
+                    setProductSale(index)({
+                      quantity: parseInt(e.target.value),
+                    })
+                  }
+                  type="number"
+                />
+                <button
+                  className="btn-tiny btn-accent"
+                  onClick={() =>
+                    setSaleForm({
+                      ...saleForm,
+                      productSales: [
+                        ...saleForm.productSales.filter((_, i) => i !== index),
+                      ],
+                    })
+                  }
+                >
+                  -
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="form-field">
+          <label>Total</label>
+          <input readOnly value={saleForm?.total} type="number" />
+        </div>
+        <div className="form-field">
+          <label>Payment</label>
+          <input
+            value={saleForm?.payment}
+            onChange={(e) =>
+              setSaleForm({
+                ...saleForm,
+                return: parseInt(e.target.value) - (saleForm?.total || 0),
+                payment: parseInt(e.target.value),
+              })
+            }
+            type="number"
+          />
+        </div>
+        <div className="form-field">
+          <label>Return</label>
+          <input
+            readOnly
+            value={saleForm?.return > 0 ? saleForm?.return : 0}
+            type="number"
+          />
+        </div>
+        <div className="form-field">
+          <label>Is Loan</label>
+          <div className="center width-100">
+            <input
+              checked={saleForm?.isLoan}
+              onChange={(e) =>
+                setSaleForm({
+                  ...saleForm,
+                  isLoan: e.target.checked,
+                })
+              }
+              type="checkbox"
+            />
+          </div>
+        </div>
+        {saleForm?.isLoan && (
+          <div className="form-field">
+            <label>Apartment Number</label>
+            <input
+              value={saleForm?.apartmentNumber}
+              onChange={(e) =>
+                setSaleForm({
+                  ...saleForm,
+                  apartmentNumber: e.target.value,
+                })
+              }
+              type="number"
+            />
+          </div>
+        )}
+      </div>
+      <div className="sale-form-footer">
+        <button
+          className="btn btn-accent"
+          onClick={() => navigate('../sales', { replace: true })}
+        >
+          Cancel
+        </button>
+        <button className="btn" onClick={() => onSaveClick()}>
+          Save
+        </button>
+      </div>
+    </div>
+  );
+}
