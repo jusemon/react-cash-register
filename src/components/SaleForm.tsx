@@ -32,9 +32,7 @@ export interface Option extends Product {
   isDisabled: boolean;
 }
 
-export interface SaleFormProp {}
-
-export default function SaleForm({}: SaleFormProp) {
+export default function SaleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = React.useState<ReadonlyArray<Option>>([]);
@@ -103,16 +101,16 @@ export default function SaleForm({}: SaleFormProp) {
     } catch (e) {
       console.error(e);
     }
-  }, [saleForm]);
+  }, [saleForm, navigate]);
 
   const updateSale = React.useCallback(async () => {
     try {
-      await axios.put(`${API}/Sale/${id}`, saleForm);
+      await axios.put(`${API}/Sale/${saleForm.saleId}`, saleForm);
       navigate('../sales', { replace: true });
     } catch (e) {
       console.error(e);
     }
-  }, [saleForm]);
+  }, [saleForm, navigate]);
 
   const onSaveClick = () => {
     if (id) {
@@ -159,7 +157,7 @@ export default function SaleForm({}: SaleFormProp) {
                   className="select"
                   options={products}
                   value={products.find(
-                    (p) => p.productId == productSale?.productId
+                    (p) => p.productId === productSale?.productId
                   )}
                   onChange={(selected) =>
                     setProductSale(index)({

@@ -13,8 +13,6 @@ export interface Product {
   isActive: boolean;
 }
 
-export interface ProductListProp {}
-
 export default function ProductList() {
   const [products, setProducts] = React.useState<ReadonlyArray<Product>>([]);
 

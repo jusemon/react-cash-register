@@ -12,9 +12,7 @@ export interface ProductFormFields {
   isActive?: boolean;
 }
 
-export interface ProductFormProp {}
-
-export default function ProductForm({}: ProductFormProp) {
+export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [productForm, setProductForm] = React.useState<ProductFormFields>({
@@ -46,7 +44,7 @@ export default function ProductForm({}: ProductFormProp) {
     } catch (e) {
       console.error(e);
     }
-  }, [productForm]);
+  }, [productForm, navigate]);
 
   const updateProduct = React.useCallback(async () => {
     try {

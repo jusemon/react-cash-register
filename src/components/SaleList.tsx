@@ -24,8 +24,6 @@ export interface Sale {
   productSales: ReadonlyArray<ProductSale>;
 }
 
-export interface SaleListProp {}
-
 export default function SaleList() {
   const [sales, setSales] = React.useState<ReadonlyArray<Sale>>([]);
 
