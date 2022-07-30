@@ -252,7 +252,7 @@ export default function SaleForm() {
                   apartmentNumber: e.target.value,
                 })
               }
-              type="number"
+              type="text"
             />
           </div>
         )}
