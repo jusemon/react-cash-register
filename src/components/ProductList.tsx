@@ -1,5 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
+import Loading from 'react-loading';
 import { NavLink } from 'react-router-dom';
 import { API } from '../config/constants';
 import { currency } from '../utils/format';
@@ -15,15 +16,18 @@ export interface Product {
 
 export default function ProductList() {
   const [products, setProducts] = React.useState<ReadonlyArray<Product>>([]);
+  const [isLoading, setLoading] = React.useState(false);
 
   const getProducts = React.useCallback(async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${API}/Product`);
-      setProducts([...response.data]);
+      setProducts(response.data);
     } catch (e) {
       console.error(e);
     }
-  }, [setProducts]);
+    setLoading(false)
+  }, [setProducts, setLoading]);
 
   React.useEffect(() => {
     getProducts();
@@ -39,7 +43,7 @@ export default function ProductList() {
   return (
     <div className="product-list">
       <NavLink to="/products/product/new">
-        <button className="btn btn-accent" onClick={() => {}}>
+        <button className="btn btn-accent">
           Add
         </button>
       </NavLink>
@@ -57,7 +61,7 @@ export default function ProductList() {
         <tbody>
           {products.length > 0 ? (
             products.map((product, i) => (
-              <tr key={i} className={i % 2 === 1 ? 'odd' : undefined}>
+              <tr key={product.productId} className={i % 2 === 1 ? 'odd' : undefined}>
                 <td>{product.name}</td>
                 <td className="end">{currency(product.salePrice)}</td>
                 <td className="end">{currency(product.buyPrice)}</td>
@@ -81,7 +85,11 @@ export default function ProductList() {
           ) : (
             <tr>
               <td className="center" colSpan={6}>
-                No data available
+                {isLoading ? (
+                  <Loading type='spinningBubbles' className='primary-spinner' />
+                ) : (
+                  <>No data available</>
+                )}
               </td>
             </tr>
           )}

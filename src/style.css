@@ -305,3 +305,13 @@ button.btn-tiny {
 .form-group-header .form-title {
   font-weight: bold;
 }
+
+
+.primary-spinner {
+  display: inline-block;
+  padding: 1rem;
+}
+
+.primary-spinner * {
+  fill: var(--primary);
+}
