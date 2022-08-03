@@ -1,5 +1,6 @@
 import * as React from 'react';
 import axios from 'axios';
+import Loading from 'react-loading';
 import { NavLink } from 'react-router-dom';
 import { API } from '../config/constants';
 import { currency } from '../utils/format';
@@ -26,15 +27,18 @@ export interface Sale {
 
 export default function SaleList() {
   const [sales, setSales] = React.useState<ReadonlyArray<Sale>>([]);
+  const [isLoading, setLoading] = React.useState(false);
 
   const getSales = React.useCallback(async () => {
+    setLoading(true);
     try {
       const response = await axios.get(`${API}/Sale`);
       setSales([...response.data]);
     } catch (e) {
       console.error(e);
     }
-  }, [setSales]);
+    setLoading(false);
+  }, [setSales, setLoading]);
 
   React.useEffect(() => {
     getSales();
@@ -43,7 +47,7 @@ export default function SaleList() {
   return (
     <div className="sale-list">
       <NavLink to="/sales/sale/new">
-        <button className="btn btn-accent" onClick={() => {}}>
+        <button className="btn btn-accent" onClick={() => { }}>
           Add
         </button>
       </NavLink>
@@ -77,7 +81,11 @@ export default function SaleList() {
           ) : (
             <tr>
               <td className="center" colSpan={6}>
-                No data available
+                {isLoading ? (
+                  <Loading type='spinningBubbles' className='primary-spinner' />
+                ) : (
+                  <>No data available</>
+                )}
               </td>
             </tr>
           )}
