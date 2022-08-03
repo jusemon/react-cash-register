@@ -3,7 +3,7 @@ import axios from 'axios';
 import Loading from 'react-loading';
 import { NavLink } from 'react-router-dom';
 import { API } from '../config/constants';
-import { currency } from '../utils/format';
+import { currency, date } from '../utils/format';
 import { Product } from './ProductList';
 
 export interface ProductSale {
@@ -67,7 +67,7 @@ export default function SaleList() {
             sales.map((sale, i) => (
               <tr key={i} className={i % 2 === 1 ? 'odd' : undefined}>
                 <td>{sale.saleId}</td>
-                <td className="center">{sale.date}</td>
+                <td className="start">{date(sale.date)}</td>
                 <td className="end">{currency(sale.total)}</td>
                 <td className="end">{sale.isLoan ? 'Yes' : 'No'}</td>
                 <td className="end">{sale.apartmentNumber}</td>
