@@ -5,7 +5,8 @@ import Loading from 'react-loading';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API } from '../config/constants';
 import { Product } from './ProductList';
-import { currency } from '../utils/format';
+import { currency, identifier } from '../utils/format';
+import { Sale } from './SaleList';
 
 export interface ProductSaleFormFields {
   productId: number;
@@ -21,7 +22,7 @@ export interface SaleFormFields {
   apartmentNumber: string;
   payment: number;
   productSales: ReadonlyArray<ProductSaleFormFields>;
-  return: number;
+  change: number;
   saleId?: number;
   date?: string;
   total?: number;
@@ -36,15 +37,18 @@ export interface Option extends Product {
 export default function SaleForm() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [editMode, setEditMode] = React.useState(false);
   const [isLoading, setLoading] = React.useState(false);
   const [products, setProducts] = React.useState<ReadonlyArray<Option>>([]);
   const [saleForm, setSaleForm] = React.useState<SaleFormFields>({
     isLoan: false,
     apartmentNumber: '',
     payment: 0,
-    return: 0,
-    productSales: [{ productId: 0, quantity: 0 }],
+    change: 0,
+    productSales: [{ productId: 0, quantity: 1, price: 0 }],
+    total: 0
   });
+
   const getProducts = React.useCallback(async () => {
     setLoading(true);
     try {
@@ -69,36 +73,14 @@ export default function SaleForm() {
     setLoading(true);
     try {
       if (id) {
-        const response = await axios.get(`${API}/Sale/${id}`);
-        setSaleForm({ ...response.data });
+        const response = await axios.get<Sale>(`${API}/Sale/${id}`);
+        setSaleForm({ ...response.data, change: 0 });
       }
     } catch (e) {
       console.error(e);
     }
     setLoading(false);
   }, [id, setSaleForm, setLoading]);
-
-  const setProductSale =
-    (index: number) => (productSale: Partial<ProductSaleFormFields>) => {
-      const productSales = [...saleForm.productSales];
-      productSales[index] = {
-        ...productSales[index],
-        ...productSale,
-      };
-      const total = productSales.reduce(
-        (sum, ps) => sum + (ps.price || 0) * ps.quantity,
-        0
-      );
-      setSaleForm({ ...saleForm, total, productSales });
-    };
-
-  React.useEffect(() => {
-    getProducts();
-  }, [getProducts]);
-
-  React.useEffect(() => {
-    getSale();
-  }, [getSale]);
 
   const createSale = React.useCallback(async () => {
     setLoading(true);
@@ -122,6 +104,14 @@ export default function SaleForm() {
     setLoading(false);
   }, [saleForm, navigate]);
 
+  React.useEffect(() => {
+    getProducts();
+    if (id) {
+      setEditMode(true)
+      getSale();
+    }
+  }, [id, getProducts, getSale, setEditMode]);
+
   const onSaveClick = () => {
     if (id) {
       updateSale();
@@ -129,6 +119,20 @@ export default function SaleForm() {
       createSale();
     }
   };
+
+  const setProductSale =
+    (index: number) => (productSale: Partial<ProductSaleFormFields>) => {
+      const productSales = [...saleForm.productSales];
+      productSales[index] = {
+        ...productSales[index],
+        ...productSale,
+      };
+      const total = productSales.reduce(
+        (sum, ps) => sum + (ps.price || 0) * ps.quantity,
+        0
+      );
+      setSaleForm({ ...saleForm, total, productSales });
+    };
 
   return (
     isLoading ? (
@@ -138,20 +142,16 @@ export default function SaleForm() {
     ) : (
       <div className="sale-form">
         <div className="sale-form-header">
-          <h2>{id ? `Edit Sale ${id}` : 'Register Sale'}</h2>
+          <h2>{editMode ? `Edit Sale ${identifier(saleForm.saleId || 0)}` : 'Register Sale'}</h2>
         </div>
         <div className="sale-form-main">
-          {saleForm.saleId && (
-            <div className="form-field">
-              <label>Sale Number</label>
-              <input readOnly value={saleForm?.saleId} type="number" />
-            </div>
-          )}
+          
           <div className="form-group">
             <div className="form-group-header">
               <div className="form-title">Products</div>
               <button
                 className="btn-tiny"
+                disabled={editMode}
                 onClick={() =>
                   setSaleForm({
                     ...saleForm,
@@ -169,6 +169,7 @@ export default function SaleForm() {
               {saleForm.productSales.map((productSale, index) => (
                 <div key={index} className="form-field">
                   <Select
+                    isDisabled={editMode}
                     className="select"
                     options={products}
                     value={products.find(
@@ -189,6 +190,7 @@ export default function SaleForm() {
                   />
                   <input
                     className="tiny"
+                    disabled={editMode}
                     value={productSale?.quantity}
                     min={1}
                     onChange={(e) =>
@@ -200,6 +202,7 @@ export default function SaleForm() {
                   />
                   <button
                     className="btn-tiny btn-accent"
+                    disabled={editMode}
                     onClick={() =>
                       setSaleForm({
                         ...saleForm,
@@ -217,35 +220,14 @@ export default function SaleForm() {
           </div>
           <div className="form-field">
             <label>Total</label>
-            <input readOnly value={saleForm?.total} type="number" />
-          </div>
-          <div className="form-field">
-            <label>Payment</label>
-            <input
-              value={saleForm?.payment}
-              onChange={(e) =>
-                setSaleForm({
-                  ...saleForm,
-                  return: parseInt(e.target.value) - (saleForm?.total || 0),
-                  payment: parseInt(e.target.value),
-                })
-              }
-              type="number"
-            />
-          </div>
-          <div className="form-field">
-            <label>Return</label>
-            <input
-              readOnly
-              value={saleForm?.return > 0 ? saleForm?.return : 0}
-              type="number"
-            />
+            <input readOnly value={saleForm.total} type="number" />
           </div>
           <div className="form-field">
             <label>Is Loan</label>
             <div className="center width-100">
               <input
-                checked={saleForm?.isLoan}
+                disabled={editMode}
+                checked={saleForm.isLoan}
                 onChange={(e) =>
                   setSaleForm({
                     ...saleForm,
@@ -256,11 +238,37 @@ export default function SaleForm() {
               />
             </div>
           </div>
+          {(!saleForm.isLoan || editMode) && (
+            <React.Fragment>
+            <div className="form-field">
+              <label>Payment</label>
+              <input
+                value={saleForm.payment}
+                onChange={(e) =>
+                  setSaleForm({
+                    ...saleForm,
+                    change: parseInt(e.target.value) - (saleForm.total || 0),
+                    payment: parseInt(e.target.value),
+                  })
+                }
+                type="number"
+              />
+            </div>
+            <div className="form-field">
+              <label>Change</label>
+              <input
+                readOnly
+                value={saleForm.change > 0 ? saleForm.change : 0}
+                type="number"
+              />
+            </div>
+            </React.Fragment>
+          )}
           {saleForm?.isLoan && (
             <div className="form-field">
               <label>Apartment Number</label>
               <input
-                value={saleForm?.apartmentNumber}
+                value={saleForm.apartmentNumber}
                 onChange={(e) =>
                   setSaleForm({
                     ...saleForm,

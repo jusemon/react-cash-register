@@ -140,6 +140,12 @@ body {
   border-top: 1px solid var(--primary);
 }
 
+.sale-table tr th:first-child,
+.sale-table tr td:first-child {
+  max-width: 20px;
+  min-width: 20px;
+}
+
 .product-table .odd td,
 .sale-table .odd td {
   background: var(--background-dark);
@@ -186,13 +192,20 @@ tbody:last-child tr:last-child td:last-child {
 
 .btn {
   background: var(--primary);
-  border-color: var(--primary);
+  border: 1px solid var(--primary);
   outline: none;
   border-radius: 5px;
   color: var(--background-light);
   cursor: pointer;
   margin: 2px;
   width: 75px;
+}
+
+.btn:disabled {
+  background: var(--background-dark);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  cursor: default;
 }
 
 .btn.btn-accent,
@@ -211,6 +224,7 @@ tbody:last-child tr:last-child td:last-child {
   border: 1px solid var(--primary);
   border-radius: 10px;
 }
+
 .product-form .form-field,
 .sale-form .form-field {
   padding-bottom: 1rem;
@@ -218,12 +232,14 @@ tbody:last-child tr:last-child td:last-child {
   align-items: center;
   justify-content: space-between;
 }
+
 .product-form .form-field label,
 .sale-form .form-field label {
   display: inline-block;
   min-width: 150px;
   font-weight: 400;
 }
+
 .product-form .form-field input,
 .sale-form .form-field input {
   display: inline-block;
@@ -287,6 +303,16 @@ button.btn-tiny {
   font-weight: 500;
   margin-left: 5px;
   border-radius: 10px;
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+  margin-bottom: -3px;
+  cursor: pointer;
+}
+
+.rotate {
+  transform: rotate(45deg);
 }
 
 .form-group-header {
