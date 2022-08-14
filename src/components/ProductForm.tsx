@@ -37,38 +37,38 @@ export default function ProductForm() {
     setLoading(false);
   }, [id, setProductForm, setLoading]);
 
-  React.useEffect(() => {
-    getProduct();
-  }, [getProduct]);
-
+  
   const createProduct = React.useCallback(async () => {
     setLoading(true);
     try {
       await axios.post(`${API}/Product`, productForm);
-      navigate('../products', { replace: true });
     } catch (e) {
       console.error(e);
     }
     setLoading(false);
-  }, [productForm, navigate, setLoading]);
-
+  }, [productForm, setLoading]);
+  
   const updateProduct = React.useCallback(async () => {
     setLoading(true);
     try {
       await axios.put(`${API}/Product/${productForm.productId}`, productForm);
-      navigate('../products', { replace: true });
     } catch (e) {
       console.error(e);
     }
     setLoading(false);
-  }, [productForm, navigate, setLoading]);
+  }, [productForm, setLoading]);
+  
+  React.useEffect(() => {
+    getProduct();
+  }, [getProduct]);
 
-  const onSaveClick = () => {
+  const onSaveClick = async () => {
     if (id) {
-      updateProduct();
+      await updateProduct();
     } else {
-      createProduct();
+      await createProduct();
     }
+    navigate('../products', { replace: true });
   };
 
   return (
