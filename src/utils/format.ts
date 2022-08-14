@@ -5,3 +5,9 @@ export const currency = (value: number) =>
   })
     .format(value)
     .slice(0, -3);
+
+export const date = (value: string) =>
+  new Date(value).toLocaleString('es-CO')
+
+export const identifier = (value: number) =>
+  value.toString().padStart(5, '0')

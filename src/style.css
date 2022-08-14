@@ -1,10 +1,4 @@
 :root {
-  --tea-green: #d0efb1ff;
-  --granny-smith-apple: #b3d89cff;
-  --opal: #9dc3c2ff;
-  --pewter-blue: #77a6b6ff;
-  --queen-blue: #4d7298ff;
-
   --primary: #03045e;
   --secondary: #0077b6;
   --tertiary: #00b4d8;
@@ -76,7 +70,7 @@ body {
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  min-height: calc(100vh - 100px);
+  min-height: calc(100vh - 116px);
 }
 
 .app-navigation-items {
@@ -114,6 +108,11 @@ body {
   padding: 0 0.5rem 0 1rem;
 }
 
+.app-footer {
+  text-align: center;
+  margin: 3px;
+}
+
 .product-list,
 .sale-list {
   max-height: calc(100vh - 125px);
@@ -144,6 +143,12 @@ body {
   max-width: 250px;
   min-width: 80px;
   border-top: 1px solid var(--primary);
+}
+
+table.with-detail > tbody > tr > th:first-child,
+table.with-detail > tbody > tr > td:first-child {
+  max-width: 20px;
+  min-width: 20px;
 }
 
 .product-table .odd td,
@@ -186,19 +191,32 @@ tbody:last-child tr:last-child td:last-child {
   width: 100%;
 }
 
+td.padding-2 {
+  padding: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
 .end {
   text-align: end;
 }
 
 .btn {
   background: var(--primary);
-  border-color: var(--primary);
+  border: 1px solid var(--primary);
   outline: none;
   border-radius: 5px;
   color: var(--background-light);
   cursor: pointer;
   margin: 2px;
   width: 75px;
+}
+
+.btn:disabled {
+  background: var(--background-dark);
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  cursor: default;
 }
 
 .btn.btn-accent,
@@ -217,6 +235,7 @@ tbody:last-child tr:last-child td:last-child {
   border: 1px solid var(--primary);
   border-radius: 10px;
 }
+
 .product-form .form-field,
 .sale-form .form-field {
   padding-bottom: 1rem;
@@ -224,12 +243,14 @@ tbody:last-child tr:last-child td:last-child {
   align-items: center;
   justify-content: space-between;
 }
+
 .product-form .form-field label,
 .sale-form .form-field label {
   display: inline-block;
   min-width: 150px;
   font-weight: 400;
 }
+
 .product-form .form-field input,
 .sale-form .form-field input {
   display: inline-block;
@@ -293,6 +314,16 @@ button.btn-tiny {
   font-weight: 500;
   margin-left: 5px;
   border-radius: 10px;
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+  margin-bottom: -3px;
+  cursor: pointer;
+}
+
+.rotate {
+  transform: rotate(45deg);
 }
 
 .form-group-header {

@@ -9,6 +9,7 @@ import SaleList from './components/SaleList';
 import SaleForm from './components/SaleForm';
 
 export default function App() {
+  const [year] = React.useState(new Date().getFullYear());
   const isNavigationActiveClass = ({ isActive }: { isActive: boolean }) =>
     `app-navigation-item ${isActive ? 'selected' : undefined}`;
 
@@ -18,7 +19,7 @@ export default function App() {
         <FaCashRegister className="app-title-icon" />
         Cash Register
       </h1>
-      <div className="app-navigation">
+      <main className="app-navigation">
         <div className="app-navigation-items">
           <NavLink className={isNavigationActiveClass} to="/sales">
             <FaMoneyCheckAlt className="app-navigation-icon" /> Sales
@@ -38,7 +39,10 @@ export default function App() {
             <Route path="products/product/:id" element={<ProductForm />} />
           </Routes>
         </div>
-      </div>
+      </main>
+      <footer className='app-footer'>
+        <small>&copy; {year} Juan Sebastián Montoya. All Rights Reserved</small>
+      </footer>
     </div>
   );
 }
