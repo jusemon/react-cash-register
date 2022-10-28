@@ -11,7 +11,7 @@ import SaleForm from './components/SaleForm';
 export default function App() {
   const [year] = React.useState(new Date().getFullYear());
   const isNavigationActiveClass = ({ isActive }: { isActive: boolean }) =>
-    `app-navigation-item ${isActive ? 'selected' : undefined}`;
+    `app-navigation-item ${isActive ? 'selected' : ''}`;
 
   return (
     <div className="app">
