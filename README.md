@@ -2,9 +2,9 @@
 
 A simple cash register application, it has a create, read and update products, along with a little sales module and mysql for persistence.
 
-A running version of the project could be found here: [Live Link](https://react-cash-register.jusemon.com/)
+A running version of the project could be found here: [Live Link](https://react-cash-register.jusemon.com/), [Alt 1](https://react-cash-register-jsm.web.app/), [Alt 2](https://react-cash-register-jsm.firebaseapp.com/)
 
-A stackblitz version could be found here: [Stackblitz Link](https://stackblitz.com/edit/jusemon-react-cash-register)
+A stackblitz version could be found here: [Stackblitz Link](https://stackblitz.com/edit/jusemon-cash-register)
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
